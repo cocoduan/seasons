@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const App = () => {
+  const [lat, setLat] = useState(null);
+  const [error, setError] = useState('');
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  window.navigator.geolocation.getCurrentPosition(
+    (position) => position && position.coords && setLat(position.coords.latitude),
+    (error) => error && setError(error.message)
+  );
+
+  if (!lat && error) {
+    return <div className="season-app">
+      An error occured with message: {error}
+    </div>;
+  }
+  if (lat && !error) {
+    return <SeasonDisplay lat={lat}></SeasonDisplay>;
+  }
+  return <Spinner message="Allow or block location service in the browser."/>;
+};
+ReactDOM.render(<App />, document.querySelector('#root'));
